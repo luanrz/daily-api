@@ -1,0 +1,6 @@
+--配置
+DROP TABLE IF EXISTS `CONFIG`;
+CREATE TABLE `CONFIG` (
+  `KEY` varchar(100) NOT NULL COMMENT '键',
+  `VALUE` varchar(100) NOT NULL COMMENT '值'
+);

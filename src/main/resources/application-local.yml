@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:daily
+    username: daily
+    password: daily
+    driver-class-name: org.h2.Driver
+    schema: classpath:h2/SCHEMA_*.sql
+    data: classpath:h2/DATA_*.sql
+    platform: h2
+  h2:
+    console:
+      enabled: true
+      path: /h2
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
