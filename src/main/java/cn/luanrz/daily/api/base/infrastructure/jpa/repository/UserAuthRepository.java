@@ -16,13 +16,13 @@ public interface UserAuthRepository extends CrudRepository<UserAuth,String> {
      * @param password 密码
      * @return 用户认证信息
      */
-    UserAuth findUserAuthByUsernameAndPassword(String username, String password);
+    UserAuth findByUsernameAndPassword(String username, String password);
 
     /**
      * 根据用户Id查找用户认证信息
      * @param userId 用户Id
      * @return 用户认证信息
      */
-    UserAuth findUserAuthByUserId(String userId);
+    UserAuth findByUserId(String userId);
 
 }

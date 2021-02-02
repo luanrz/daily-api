@@ -12,5 +12,5 @@ public interface UserWechatRepository extends CrudRepository<UserWechat, String>
      * @param wechatId 微信Id（openId）
      * @return 用户微信信息
      */
-    UserWechat findUserWechatByWechatId(String wechatId);
+    UserWechat findByWechatId(String wechatId);
 }

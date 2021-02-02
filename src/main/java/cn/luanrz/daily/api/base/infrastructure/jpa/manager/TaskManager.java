@@ -13,7 +13,7 @@ import java.util.List;
 public class TaskManager {
 
     /** 任务Repository */
-    private TaskRepository taskRepository;
+    private final TaskRepository taskRepository;
 
     public TaskManager(TaskRepository taskRepository){
         this.taskRepository = taskRepository;
@@ -25,7 +25,7 @@ public class TaskManager {
      * @return 任务列表
      */
     public List<Task> findAll(String userId){
-        return taskRepository.findAllTaskByUserId(userId);
+        return taskRepository.findAllByUserId(userId);
     }
 
     /**
@@ -33,7 +33,56 @@ public class TaskManager {
      * @param userId 用户id
      * @return 待办事项列表
      */
-    public List<Task> findTodo(String userId, String status) {
-        return taskRepository.findAllTaskByUserIdAndStatus(userId, status);
+    public List<Task> findTodo(String userId) {
+        return taskRepository.findAllByUserIdAndStatus(userId, "0");
+    }
+
+    /**
+     * 根据用户id与任务id查询一个任务
+     * @param userId 用户id
+     * @param taskId 任务id
+     * @return 完整的任务对象
+     */
+    public Task findOne(String userId, String taskId){
+        return taskRepository.findByUserIdAndTaskId(userId, taskId);
+    }
+
+    /**
+     * 增加任务
+     * @param task 任务对象
+     * @return 完整的任务对象
+     */
+    public Task add(Task task) {
+        return taskRepository.save(task);
+    }
+
+    /**
+     * 更新任务
+     * 只允许修改content,status及DeadlineTime
+     * @param task 任务对象
+     * @return 完整的任务对象
+     */
+    public Task update(Task task) {
+        Task oldTask = findOne(task.getUserId(), task.getTaskId());
+        if (task.getContent() == null){
+            task.setContent(oldTask.getContent());
+        }
+        if (task.getStatus() == null){
+            task.setStatus(oldTask.getStatus());
+        }
+        if (task.getDeadlineTime() == null){
+            task.setDeadlineTime(oldTask.getDeadlineTime());
+        }
+        task.setCreateTime(oldTask.getCreateTime());
+        task.setUserId(oldTask.getUserId());
+        return taskRepository.save(task);
+    }
+
+    /**
+     * 删除任务
+     * @param task 任务对象
+     */
+    public void delete(Task task) {
+        taskRepository.deleteById(task.getTaskId());
     }
 }

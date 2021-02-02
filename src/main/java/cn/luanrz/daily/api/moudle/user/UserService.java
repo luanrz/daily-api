@@ -6,6 +6,7 @@ import cn.luanrz.daily.api.base.http.wechat.WechatAuthApiClient;
 import cn.luanrz.daily.api.base.http.wechat.dto.WechatAuthRequest;
 import cn.luanrz.daily.api.base.http.wechat.dto.WechatAuthResponse;
 import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.UserAuth;
+import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.UserDetail;
 import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.UserWechat;
 import cn.luanrz.daily.api.base.infrastructure.jpa.manager.ConfigManager;
 import cn.luanrz.daily.api.base.infrastructure.jpa.manager.UserManager;
@@ -30,12 +31,12 @@ public class UserService {
      * @param userAuth 包含用户名和密码的用户认证对象
      * @return 完整的用户认证对象
      */
-    public UserAuth loginByUsername(UserAuth userAuth) {
+    public UserDetail loginByUsername(UserAuth userAuth) {
         UserAuth newUserAuth = userManager.findUserAuthByUsernameAndPassword(userAuth.getUsername(), userAuth.getPassword());
         if (newUserAuth == null){
             throw DailyException.getInstance(UserErrorEnum.AUTH_FAIL_USERNAME_PASSWORD);
         }
-        return newUserAuth;
+        return userManager.findUserDetailByUserId(newUserAuth.getUserId());
     }
 
     /**
@@ -43,10 +44,10 @@ public class UserService {
      * @param userAuth 包含用户名和密码的用户认证对象
      * @return 用户认证对象
      */
-    public UserAuth register(UserAuth userAuth) {
-        //UserId也可由数据库自动生成
+    public UserDetail register(UserAuth userAuth) {
         userAuth.setUserId(IdGenerator.generateUUID());
-        return userManager.register(userAuth);
+        UserAuth newUserAuth = userManager.register(userAuth);
+        return userManager.findUserDetailByUserId(newUserAuth.getUserId());
     }
 
     /**
@@ -54,7 +55,7 @@ public class UserService {
      * @param wechatCode 微信code（在微信小程序端调用wx.login方法获取）
      * @return 完整的用户对象
      */
-    public UserAuth loginByWechatCode(String wechatCode){
+    public UserDetail loginByWechatCode(String wechatCode){
         //向微信服务器发送登录请求，以获取用户openid
         WechatAuthRequest wechatAuthRequest = WechatAuthRequest.builder()
                 .setAppid(configManager.findConfig(ConfigManager.CONFIG_KEY_APPID))
@@ -67,19 +68,21 @@ public class UserService {
             throw DailyException.getInstance(UserErrorEnum.AUTH_FAIL_WECHAT_CODE);
         }
 
+        UserAuth userAuth;
+
         //根据微信id获取用户微信信息
         UserWechat userWechat = userManager.findWechatUserAuthByWechatId(openid);
 
-        //如果此微信用户已注册，直接登录
         if (null != userWechat){
-            return userManager.findUserAuthByUserId(userWechat.getUserId());
+            //如果此微信用户已注册，直接登录
+            userAuth = userManager.findUserAuthByUserId(userWechat.getUserId());
+        }else {
+            //微信用户自动注册
+            userAuth = registerByWechat();
+            //绑定微信
+            bindWechatId(new UserWechat(userAuth.getUserId(),openid));
         }
-
-        //微信用户自动注册
-        UserAuth userAuth = registerByWechat();
-        //绑定微信
-        bindWechatId(new UserWechat(userAuth.getUserId(),openid));
-        return userAuth;
+        return userManager.findUserDetailByUserId(userAuth.getUserId());
     }
 
 

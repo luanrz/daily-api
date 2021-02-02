@@ -1,7 +1,12 @@
 package cn.luanrz.daily.api.base.infrastructure.jpa.manager;
 
+import cn.luanrz.daily.api.base.exception.DailyException;
+import cn.luanrz.daily.api.base.exception.error.GlobalErrorEnum;
+import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.Config;
 import cn.luanrz.daily.api.base.infrastructure.jpa.repository.ConfigRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 /**
  * 配置Manager
@@ -13,7 +18,7 @@ public class ConfigManager {
     public static final String CONFIG_KEY_SECRET = "secret";
 
     /** 配置Repository */
-    private ConfigRepository configRepository;
+    private final ConfigRepository configRepository;
 
     public ConfigManager(ConfigRepository configRepository){
         this.configRepository = configRepository;
@@ -25,6 +30,10 @@ public class ConfigManager {
      * @return 值
      */
     public String findConfig(String key){
-        return configRepository.findById(key).get().getValue();
+        Optional<Config> configOptional = configRepository.findById(key);
+        if (configOptional.isPresent()){
+            return configOptional.get().getValue();
+        }
+        throw DailyException.getInstance(GlobalErrorEnum.CONFIG_FIND_EMPTY);
     }
 }

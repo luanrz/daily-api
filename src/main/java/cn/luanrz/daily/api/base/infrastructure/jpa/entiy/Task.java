@@ -39,6 +39,11 @@ public class Task {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
     private Date deadlineTime;
 
+    //完成时间
+    @Column(name = "FINISH_TIME")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
+    private Date finishTime;
+
     //待办事项子任务列表
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "TASK_ID", referencedColumnName = "TASK_ID")
@@ -90,6 +95,14 @@ public class Task {
 
     public void setDeadlineTime(Date deadlineTime) {
         this.deadlineTime = deadlineTime;
+    }
+
+    public Date getFinishTime() {
+        return finishTime;
+    }
+
+    public void setFinishTime(Date finishTime) {
+        this.finishTime = finishTime;
     }
 
     public List<TaskStep> getTaskSteps() {

@@ -1,8 +1,10 @@
 package cn.luanrz.daily.api.base.infrastructure.jpa.manager;
 
 import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.UserAuth;
+import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.UserDetail;
 import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.UserWechat;
 import cn.luanrz.daily.api.base.infrastructure.jpa.repository.UserAuthRepository;
+import cn.luanrz.daily.api.base.infrastructure.jpa.repository.UserDetailRepository;
 import cn.luanrz.daily.api.base.infrastructure.jpa.repository.UserWechatRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,13 +15,17 @@ import org.springframework.stereotype.Service;
 public class UserManager {
 
     /** 用户认证Repository */
-    private UserAuthRepository userAuthRepository;
+    private final UserAuthRepository userAuthRepository;
     /** 用户微信Repository */
-    private UserWechatRepository userWechatRepository;
+    private final UserWechatRepository userWechatRepository;
+    /** 用户详细信息Repository */
+    private final UserDetailRepository userDetailRepository;
 
-    public UserManager(UserAuthRepository userAuthRepository, UserWechatRepository userWechatRepository){
+    public UserManager(UserAuthRepository userAuthRepository, UserWechatRepository userWechatRepository,
+                       UserDetailRepository userDetailRepository){
         this.userAuthRepository = userAuthRepository;
         this.userWechatRepository = userWechatRepository;
+        this.userDetailRepository = userDetailRepository;
     }
 
     /**
@@ -29,7 +35,7 @@ public class UserManager {
      * @return 用户认证对象
      */
     public UserAuth findUserAuthByUsernameAndPassword(String username, String password){
-        return userAuthRepository.findUserAuthByUsernameAndPassword(username,password);
+        return userAuthRepository.findByUsernameAndPassword(username,password);
     }
 
     /**
@@ -38,7 +44,7 @@ public class UserManager {
      * @return 用户微信对象
      */
     public UserWechat findWechatUserAuthByWechatId(String wechatId){
-        return userWechatRepository.findUserWechatByWechatId(wechatId);
+        return userWechatRepository.findByWechatId(wechatId);
     }
 
     /**
@@ -47,7 +53,7 @@ public class UserManager {
      * @return 用户认证对象
      */
     public UserAuth findUserAuthByUserId(String userId) {
-        return userAuthRepository.findUserAuthByUserId(userId);
+        return userAuthRepository.findByUserId(userId);
     }
 
     /**
@@ -66,5 +72,14 @@ public class UserManager {
      */
     public UserWechat bindWechat(UserWechat userWechat) {
         return userWechatRepository.save(userWechat);
+    }
+
+    /**
+     * 查询用户详细信息
+     * @param userId 用户id
+     * @return 用户详细信息
+     */
+    public UserDetail findUserDetailByUserId(String userId){
+        return userDetailRepository.findByUserId(userId);
     }
 }

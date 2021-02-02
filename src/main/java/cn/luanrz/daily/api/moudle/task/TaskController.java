@@ -1,12 +1,9 @@
 package cn.luanrz.daily.api.moudle.task;
 
-import cn.luanrz.daily.api.base.exception.DailyException;
-import cn.luanrz.daily.api.base.exception.error.GlobalErrorEnum;
 import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.Task;
-import cn.luanrz.daily.api.moudle.user.token.JwtHelper;
+import cn.luanrz.daily.api.moudle.user.token.JwtUserIdParser;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
-import io.jsonwebtoken.MalformedJwtException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
@@ -14,14 +11,14 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-@Api(tags = "Task（任务）")
+@Api(tags = "Tasks（任务）")
 @ApiSupport(order = 2)
 @CrossOrigin
 @RestController
-@RequestMapping("/task")
+@RequestMapping("/tasks")
 public class TaskController {
-    private TaskService taskService;
-    private HttpServletRequest request;
+    private final TaskService taskService;
+    private final HttpServletRequest request;
 
     public TaskController(TaskService taskService, HttpServletRequest request) {
         this.taskService = taskService;
@@ -29,43 +26,54 @@ public class TaskController {
     }
 
     /**
-     * 查找用户的所有任务
+     * 查找任务
+     * @param type 查询类型
      * @return 任务列表
      */
-    @ApiOperation(value = "Find all tasks（查询所有任务）")
+    @ApiOperation(value = "查询任务（Find tasks）")
     @ApiOperationSupport(order = 1)
-    @GetMapping("/all")
-    public List<Task> findAll() {
-        return taskService.findAll(getUserId());
+    @GetMapping
+    public List<Task> get(String type) {
+        String userId = JwtUserIdParser.getUserId(request.getHeader("jwt"));
+        return taskService.find(type, userId);
     }
 
     /**
-     * 查找用户的待办事项
-     * @return 待办事项列表
+     * 增加任务
+     * @param task 任务:包含"任务内容"
+     * @return 完整的任务
      */
-    @ApiOperation(value = "Find todo tasks（查询待办事项）")
+    @ApiOperation(value = "增加任务（Add task）")
     @ApiOperationSupport(order = 2)
-    @GetMapping("/todo")
-    public List<Task> findTodo() {
-        return taskService.findTodo(getUserId());
+    @PostMapping
+    public Task post(@RequestBody Task task){
+        task.setUserId(JwtUserIdParser.getUserId(request.getHeader("jwt")));
+        return taskService.add(task);
     }
 
+    /**
+     * 更新任务
+     * @param task 任务:包含"任务id"与"待修改的任务属性"(任务内容,状态,完成时间)
+     * @return 完整的任务
+     */
+    @ApiOperation(value = "更新任务（Update task）")
+    @ApiOperationSupport(order = 2)
+    @PatchMapping
+    public Task patch(@RequestBody Task task){
+        task.setUserId(JwtUserIdParser.getUserId(request.getHeader("jwt")));
+        return taskService.update(task);
+    }
 
     /**
-     * 验证Token合法性并从从JWS字符串中获取用户ID
-     * @return 用户ID
+     * 删除任务
+     * @param task 任务:包含"任务id"
      */
-    private String getUserId(){
-        String userId;
-        String jwt = request.getHeader("jwt");
-        try {
-            userId = JwtHelper.parseJws(jwt).get("userId").toString();
-        }catch (IllegalArgumentException iae){
-            throw DailyException.getInstance(GlobalErrorEnum.TOKEN_VERIFY_EMPTY);
-        }catch ( MalformedJwtException mje){
-            throw DailyException.getInstance(GlobalErrorEnum.TOKEN_VERIFY_FAIL);
-        }
-        return userId;
+    @ApiOperation(value = "删除任务（DELETE task）")
+    @ApiOperationSupport(order = 3)
+    @DeleteMapping
+    public void delete(@RequestBody Task task){
+        task.setUserId(JwtUserIdParser.getUserId(request.getHeader("jwt")));
+        taskService.delete(task);
     }
 
 }

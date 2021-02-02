@@ -1,6 +1,7 @@
 package cn.luanrz.daily.api.moudle.user;
 
 import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.UserAuth;
+import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.UserDetail;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -13,30 +14,30 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-    private UserService userService;
+    private final UserService userService;
 
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
-    @ApiOperation(value = "Login（登录）")
+    @ApiOperation(value = "登录（Login）")
     @ApiOperationSupport(order = 1, ignoreParameters = {"userId"})
     @PostMapping("/login")
-    public UserAuth login(UserAuth userAuth) {
+    public UserDetail login(@RequestBody UserAuth userAuth) {
         return userService.loginByUsername(userAuth);
     }
 
-    @ApiOperation(value = "Register（注册）")
+    @ApiOperation(value = "注册（Register）")
     @ApiOperationSupport(order = 2, ignoreParameters = {"userId"})
     @PostMapping("/register")
-    public UserAuth register(UserAuth userAuth){
+    public UserDetail register(@RequestBody UserAuth userAuth){
         return userService.register(userAuth);
     }
 
     @ApiOperationSupport(order = 3)
-    @ApiOperation(value = "Wechat login（微信登陆）")
+    @ApiOperation(value = "微信登陆（Wechat login）")
     @PostMapping("/login/wechat")
-    public UserAuth loginByWechat(String wechatCode) {
+    public UserDetail loginByWechat(String wechatCode) {
         return userService.loginByWechatCode(wechatCode);
     }
 

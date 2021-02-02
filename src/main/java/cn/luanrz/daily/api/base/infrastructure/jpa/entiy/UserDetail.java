@@ -1,18 +1,16 @@
 package cn.luanrz.daily.api.base.infrastructure.jpa.entiy;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * 用户认证信息表
+ * 用户详细信息表
  */
 @Entity
-@Table(name = "USER_AUTH")
-public class UserAuth {
+@Table(name = "USER_DETAIL")
+public class UserDetail {
     @Id
     @Column(name = "USER_ID", nullable = false)
     private String userId;
@@ -20,10 +18,11 @@ public class UserAuth {
     @Column(name = "USERNAME", nullable = false)
     private String username;
 
-    //序列化时忽略密码
-    //@JsonIgnore
-    @Column(name = "PASSWORD")
-    private String password;
+    @Column(name = "EMAIL", nullable = false)
+    private String email;
+
+    @Column(name = "PHONE_NUMBER", nullable = false)
+    private String phoneNumber;
 
     public String getUserId() {
         return userId;
@@ -41,20 +40,19 @@ public class UserAuth {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
+    public String getEmail() {
+        return email;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public UserAuth(String userId, String username, String password) {
-        this.userId = userId;
-        this.username = username;
-        this.password = password;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public UserAuth() {
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

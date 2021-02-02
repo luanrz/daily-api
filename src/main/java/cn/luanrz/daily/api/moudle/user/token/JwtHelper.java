@@ -1,6 +1,6 @@
 package cn.luanrz.daily.api.moudle.user.token;
 
-import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.UserAuth;
+import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.UserDetail;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
@@ -12,18 +12,20 @@ import javax.crypto.SecretKey;
 /**
  * Jwt帮助类
  */
-public class JwtHelper {
+public final class JwtHelper {
 
     private static SecretKey key = Keys.hmacShaKeyFor( "123456789123456789123456789123456789".getBytes());
+
+    private JwtHelper(){}
 
     /**
      * 创建JWS(JSON Web Signature)
      *
-     * @param userAuth 用户信息，将用户id存入claims
+     * @param userDetail 用户信息，将用户id存入claims
      * @return JWS格式的token字符串
      */
-    public static String createJws(UserAuth userAuth) {
-        return Jwts.builder().claim("userId", userAuth.getUserId()).signWith(key).compact();
+    public static String createJws(UserDetail userDetail) {
+        return Jwts.builder().claim("userId", userDetail.getUserId()).signWith(key).compact();
     }
 
     /**
