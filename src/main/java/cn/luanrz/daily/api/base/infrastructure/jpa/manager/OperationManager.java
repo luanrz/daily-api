@@ -7,7 +7,6 @@ import cn.luanrz.daily.api.base.infrastructure.jpa.repository.OperationRepositor
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -58,5 +57,14 @@ public class OperationManager {
             newOperations.add(operation);
         }
         return newOperations;
+    }
+
+    /**
+     * 增加操作记录
+     * @param operation 操作记录
+     * @return 操作记录
+     */
+    public Operation save(Operation operation){
+        return repository.save(operation);
     }
 }

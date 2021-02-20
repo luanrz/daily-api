@@ -49,6 +49,7 @@ public class OperationController {
     @PostMapping
     public List<Operation> post(@RequestBody List<Operation> operations) {
         String userId = JwtUserIdParser.getUserId(request.getHeader("jwt"));
-        return operationService.push(operations, userId);
+        operations.forEach(operation -> operation.setUserId(userId));
+        return operationService.push(operations);
     }
 }

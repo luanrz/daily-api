@@ -4,6 +4,7 @@ import cn.luanrz.daily.api.base.exception.DailyException;
 import cn.luanrz.daily.api.base.exception.error.OperationErrorEnum;
 import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.Operation;
 import cn.luanrz.daily.api.base.infrastructure.jpa.manager.OperationManager;
+import cn.luanrz.daily.api.moudle.operation.common.OperationTypeEnum;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -37,12 +38,16 @@ public class OperationServiceImpl implements OperationService{
     }
 
     @Override
-    public List<Operation> push(List<Operation> operations, String userId) {
-        operations.forEach(operation -> operation.setUserId(userId));
+    public List<Operation> push(List<Operation> operations) {
         //校验操作记录
         checkOperations(operations);
         //增加操作记录
         return addOperations(operations);
+    }
+
+    @Override
+    public Operation add(Operation operation) {
+        return operationManager.save(operation);
     }
 
     /**

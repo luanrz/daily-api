@@ -22,5 +22,12 @@ public interface OperationService {
      * @param operations 待入库的操作记录列表
      * @return 完整的操作记录列表
      */
-    List<Operation> push(List<Operation> operations, String userId);
+    List<Operation> push(List<Operation> operations);
+
+    /**
+     * 增加操作记录
+     * @param operation 待入库的操作记录
+     * @return 完整的操作记录
+     */
+    Operation add(Operation operation);
 }

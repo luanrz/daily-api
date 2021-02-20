@@ -40,8 +40,9 @@ public class Operation {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public Operation setUserId(String userId) {
         this.userId = userId;
+        return this;
     }
 
     public String getType() {

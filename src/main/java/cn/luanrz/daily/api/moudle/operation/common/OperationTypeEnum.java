@@ -1,4 +1,4 @@
-package cn.luanrz.daily.api.moudle.operation;
+package cn.luanrz.daily.api.moudle.operation.common;
 
 /**
  * 操作类型枚举

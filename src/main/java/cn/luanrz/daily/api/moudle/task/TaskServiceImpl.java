@@ -37,7 +37,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Task add(Task task) {
-        task.setTaskId(IdGenerator.generateUUID());
+        if (null == task.getTaskId()){
+            task.setTaskId(IdGenerator.generateUUID());
+        }
         task.setCreateTime(new Date());
         task.setStatus("0");
         return taskManager.add(task);
