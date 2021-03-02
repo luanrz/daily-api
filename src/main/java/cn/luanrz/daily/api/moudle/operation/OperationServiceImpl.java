@@ -3,7 +3,9 @@ package cn.luanrz.daily.api.moudle.operation;
 import cn.luanrz.daily.api.base.exception.DailyException;
 import cn.luanrz.daily.api.base.exception.error.OperationErrorEnum;
 import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.Operation;
+import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.Task;
 import cn.luanrz.daily.api.base.infrastructure.jpa.manager.OperationManager;
+import cn.luanrz.daily.api.moudle.operation.common.OperationContentParser;
 import cn.luanrz.daily.api.moudle.operation.common.OperationTypeEnum;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +26,7 @@ public class OperationServiceImpl implements OperationService{
     }
 
     @Override
-    public List<Operation> pull(String type, String currentOperationId, String userId) {
+    public List<Operation> find(String type, String currentOperationId, String userId) {
         final String typeAll = "all";
         final String typeTodo = "latest";
         if (typeAll.equalsIgnoreCase(type)){
@@ -38,7 +40,7 @@ public class OperationServiceImpl implements OperationService{
     }
 
     @Override
-    public List<Operation> push(List<Operation> operations) {
+    public List<Operation> add(List<Operation> operations) {
         //校验操作记录
         checkOperations(operations);
         //增加操作记录
@@ -77,7 +79,7 @@ public class OperationServiceImpl implements OperationService{
         //校验操作记录类型
         checkOperationType(operations);
         //检查操作记录内容
-        checkOperationContent(operations);
+        checkOperationsContent(operations);
     }
 
     /**
@@ -98,18 +100,36 @@ public class OperationServiceImpl implements OperationService{
      * 检查操作记录内容
      * @param operations 操作记录列表
      */
-    private void checkOperationContent(List<Operation> operations) {
+    private void checkOperationsContent(List<Operation> operations) {
         operations.forEach(operation -> {
-            boolean isOperationContentCorrect = true;
-            String content = operation.getContent();
-            if (null == content){
-                isOperationContentCorrect = false;
-            }
-            // todo check content properties
-            if (!isOperationContentCorrect){
+            if (!checkOperationContent(operation)){
                 throw DailyException.getInstance(OperationErrorEnum.INCORRECT_OPERATION_CONTENT);
             }
         });
+    }
+
+    /**
+     * 检查操作记录内容
+     * @param operation 操作记录
+     * @return 是否合法
+     */
+    private boolean checkOperationContent(Operation operation) {
+        String content = operation.getContent();
+        if (null == content){
+            return false;
+        }
+        Task task = OperationContentParser.toObject(content);
+        if (task.getTaskId() == null){
+            return false;
+        }
+        OperationTypeEnum operationTypeEnum = OperationTypeEnum.valueOf(operation.getType());
+        switch (operationTypeEnum){
+            case ADD_TASK:
+                return task.getContent() != null && task.getCreateTime() != null;
+            case UPDATE_TASK:
+                return task.getContent() != null;
+        }
+        return true;
     }
 
     /**

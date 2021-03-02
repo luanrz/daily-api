@@ -1,5 +1,7 @@
 package cn.luanrz.daily.api.base.infrastructure.jpa.manager;
 
+import cn.luanrz.daily.api.base.exception.DailyException;
+import cn.luanrz.daily.api.base.exception.error.TaskErrorEnum;
 import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.Task;
 import cn.luanrz.daily.api.base.infrastructure.jpa.repository.TaskRepository;
 import org.springframework.stereotype.Service;
@@ -64,6 +66,9 @@ public class TaskManager {
      */
     public Task update(Task task) {
         Task oldTask = findOne(task.getUserId(), task.getTaskId());
+        if (oldTask == null){
+            throw DailyException.getInstance(TaskErrorEnum.INCORRECT_TASK_ID);
+        }
         if (task.getContent() == null){
             task.setContent(oldTask.getContent());
         }
@@ -83,6 +88,10 @@ public class TaskManager {
      * @param task 任务对象
      */
     public void delete(Task task) {
+        Task oldTask = findOne(task.getUserId(), task.getTaskId());
+        if (oldTask == null){
+            throw DailyException.getInstance(TaskErrorEnum.INCORRECT_TASK_ID);
+        }
         taskRepository.deleteById(task.getTaskId());
     }
 }

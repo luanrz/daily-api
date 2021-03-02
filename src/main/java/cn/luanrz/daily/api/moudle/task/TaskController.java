@@ -1,6 +1,8 @@
 package cn.luanrz.daily.api.moudle.task;
 
 import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.Task;
+import cn.luanrz.daily.api.moudle.operation.common.OperationTypeEnum;
+import cn.luanrz.daily.api.moudle.task.extend.TaskExtendService;
 import cn.luanrz.daily.api.moudle.user.token.JwtUserIdParser;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -18,10 +20,14 @@ import java.util.List;
 @RequestMapping("/tasks")
 public class TaskController {
     private final TaskService taskService;
+    private final TaskExtendService taskExtendService;
     private final HttpServletRequest request;
 
-    public TaskController(TaskService taskService, HttpServletRequest request) {
+    public TaskController(TaskService taskService,
+                          TaskExtendService taskExtendService,
+                          HttpServletRequest request) {
         this.taskService = taskService;
+        this.taskExtendService = taskExtendService;
         this.request = request;
     }
 
@@ -48,7 +54,9 @@ public class TaskController {
     @PostMapping
     public Task post(@RequestBody Task task){
         task.setUserId(JwtUserIdParser.getUserId(request.getHeader("jwt")));
-        return taskService.add(task);
+        Task result = taskService.add(task);
+        taskExtendService.syncOperation(OperationTypeEnum.ADD_TASK, task);
+        return result;
     }
 
     /**
@@ -61,7 +69,9 @@ public class TaskController {
     @PatchMapping
     public Task patch(@RequestBody Task task){
         task.setUserId(JwtUserIdParser.getUserId(request.getHeader("jwt")));
-        return taskService.update(task);
+        Task result = taskService.update(task);
+        taskExtendService.syncOperation(OperationTypeEnum.UPDATE_TASK, task);
+        return result;
     }
 
     /**
@@ -74,6 +84,7 @@ public class TaskController {
     public void delete(@RequestBody Task task){
         task.setUserId(JwtUserIdParser.getUserId(request.getHeader("jwt")));
         taskService.delete(task);
+        taskExtendService.syncOperation(OperationTypeEnum.DELETE_TASK, task);
     }
 
 }

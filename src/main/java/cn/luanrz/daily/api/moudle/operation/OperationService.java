@@ -15,14 +15,14 @@ public interface OperationService {
      * @param userId 用户ID
      * @return 操作记录列表
      */
-    List<Operation> pull(String type, String currentOperationId, String userId);
+    List<Operation> find(String type, String currentOperationId, String userId);
 
     /**
      * 增加操作记录,并在切面中同步更新任务
      * @param operations 待入库的操作记录列表
      * @return 完整的操作记录列表
      */
-    List<Operation> push(List<Operation> operations);
+    List<Operation> add(List<Operation> operations);
 
     /**
      * 增加操作记录

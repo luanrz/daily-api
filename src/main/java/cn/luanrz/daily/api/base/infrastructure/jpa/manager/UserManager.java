@@ -1,5 +1,7 @@
 package cn.luanrz.daily.api.base.infrastructure.jpa.manager;
 
+import cn.luanrz.daily.api.base.exception.DailyException;
+import cn.luanrz.daily.api.base.exception.error.UserErrorEnum;
 import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.UserAuth;
 import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.UserDetail;
 import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.UserWechat;
@@ -62,6 +64,10 @@ public class UserManager {
      * @return 用户认证对象
      */
     public UserAuth register(UserAuth userAuth) {
+        UserAuth originalUserAuth = userAuthRepository.findByUserId(userAuth.getUserId());
+        if (originalUserAuth == null){
+            throw DailyException.getInstance(UserErrorEnum.EXIST_SAME_USERNAME);
+        }
         return userAuthRepository.save(userAuth);
     }
 

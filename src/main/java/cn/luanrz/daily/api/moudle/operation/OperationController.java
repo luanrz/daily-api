@@ -1,6 +1,7 @@
 package cn.luanrz.daily.api.moudle.operation;
 
 import cn.luanrz.daily.api.base.infrastructure.jpa.entiy.Operation;
+import cn.luanrz.daily.api.moudle.operation.extend.OperationExtendService;
 import cn.luanrz.daily.api.moudle.user.token.JwtUserIdParser;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -18,10 +19,14 @@ import java.util.List;
 @RequestMapping("/operations")
 public class OperationController {
     private final OperationService operationService;
+    private final OperationExtendService operationExtendService;
     private final HttpServletRequest request;
 
-    public OperationController(OperationService operationService, HttpServletRequest request) {
+    public OperationController(OperationService operationService,
+                               OperationExtendService operationExtendService,
+                               HttpServletRequest request) {
         this.operationService = operationService;
+        this.operationExtendService = operationExtendService;
         this.request = request;
     }
 
@@ -36,7 +41,7 @@ public class OperationController {
     @GetMapping()
     public List<Operation> get(String type, String currentOperationId) {
         String userId = JwtUserIdParser.getUserId(request.getHeader("jwt"));
-        return operationService.pull(type, currentOperationId, userId);
+        return operationService.find(type, currentOperationId, userId);
     }
 
     /**
@@ -48,8 +53,11 @@ public class OperationController {
     @ApiOperationSupport(order = 2)
     @PostMapping
     public List<Operation> post(@RequestBody List<Operation> operations) {
+        List<Operation> result;
         String userId = JwtUserIdParser.getUserId(request.getHeader("jwt"));
         operations.forEach(operation -> operation.setUserId(userId));
-        return operationService.push(operations);
+        result = operationService.add(operations);
+        operationExtendService.syncTasks(operations);
+        return result;
     }
 }
